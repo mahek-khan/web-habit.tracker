@@ -78,7 +78,7 @@ if (!habits.length) {
   habits = [
     { id: 1, name: 'Exercise',  emoji: '🏋️' },
     { id: 2, name: 'Read',      emoji: '📚' },
-    { id: 2, name: 'coding',    emoji: '💻' }
+    { id: 3, name: 'coding',    emoji: '💻' }
   ];
   saveHabits();
 }
