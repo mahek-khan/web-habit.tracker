@@ -76,9 +76,9 @@ let logs   = JSON.parse(localStorage.getItem('ht_logs')   || '{}');
 // Default habits on first load
 if (!habits.length) {
   habits = [
-    { id: 1, name: 'Exercise',  emoji: '💪' },
+    { id: 1, name: 'Exercise',  emoji: '🏋️' },
     { id: 2, name: 'Read',      emoji: '📚' },
-    { id: 3, name: 'Meditate',  emoji: '🧘' }
+    { id: 3, name: 'coding',  emoji: '💻' }
   ];
   saveHabits();
 }
