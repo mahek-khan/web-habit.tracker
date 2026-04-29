@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habit Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div><h1>Habit Tracker</h1>
+        <p>Consistency builds character.</p>
+      </div>
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">&#8249;</button><span class="month-label" id="monthLabel"></span>
+        <button onclick="changeMonth(1)">&#8250;</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Completion Rate</div><div class="stat-val green" id="statRate">0%</div></div>
+      <div class="stat"><div class="stat-label">Best Streak</div><div class="stat-val" id="statStreak">0d</div></div>
+      <div class="stat"><div class="stat-label">Done Today</div><div class="stat-val" id="statDone">0/0</div></div>
+      <div class="stat"><div class="stat-label">This Month</div><div class="stat-val" id="statMonth">0</div></div>
+    </div>
+
+    <div class="main-grid">
+      <div>
+        <div class="panel">
+          <div class="panel-head"><h3>Daily Habits</h3></div>
+          <div class="add-row">
+            <div class="emoji-picker-wrap">
+              <button id="emojiBtn" class="emoji-btn" onclick="togglePicker()" title="Choose emoji">💪</button>
+              <div id="emojiPickerDrop" class="emoji-picker-drop" style="display:none"></div>
+            </div>
+            <input id="habitInput" type="text" placeholder="New habit... (press Enter)" maxlength="45" onkeydown="if(event.key==='Enter')addHabit()">
+            <button onclick="addHabit()">+ Add</button>
+          </div>
+          <div class="day-headers">
+            <div class="spacer3"></div>
+            <div class="spacer"></div>
+            <div id="dayHeaderDots" style="display:flex;gap:4px"></div>
+            <div class="spacer2"></div>
+            <div style="width:20px"></div>
+          </div>
+          <div id="habitsList"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="panel progress-panel">
+          <div class="panel-head"><h3>Monthly Progress</h3></div>
+          <div class="ring-wrap">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="44" fill="none" stroke="#ddeaff" stroke-width="10"/>
+              <circle id="ringFill" cx="55" cy="55" r="44" fill="none" stroke="#2563eb" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="276.46" stroke-dashoffset="276.46"
+                transform="rotate(-90 55 55)" style="transition:stroke-dashoffset .6s"/>
+              <text x="55" y="51" text-anchor="middle" font-family="DM Mono,monospace" font-size="18" font-weight="500" fill="#111" id="ringPct">0%</text>
+              <text x="55" y="66" text-anchor="middle" font-family="Outfit,sans-serif" font-size="10" fill="#888">completion</text>
+            </svg>
+            <span class="ring-label" id="ringSubLabel">0 / 0 checks</span>
+          </div>
+          <div class="habits-summary" id="habitBars"></div>
+        </div>
+
+        <div class="panel calendar-panel">
+          <div class="panel-head"><h3>Heatmap</h3></div>
+          <div class="cal-head">
+            <div class="cal-day-label">S</div><div class="cal-day-label">M</div>
+            <div class="cal-day-label">T</div><div class="cal-day-label">W</div>
+            <div class="cal-day-label">T</div><div class="cal-day-label">F</div>
+            <div class="cal-day-label">S</div>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel chart-panel" style="margin-top:12px;">
+      <div class="panel-head">
+        <h3>Daily Completion Trend</h3>
+        <span id="chartMonthLabel" style="font-size:12px;color:#aaa;"></span>
+      </div>
+      <div style="padding:16px 16px 12px;">
+        <canvas id="trendChart" height="90"></canvas>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:12px;">
+      <div class="panel-head">
+        <h3>Monthly Thoughts</h3>
+        <span id="thoughtsMonthLabel" style="font-size:12px;color:#90aad0;"></span>
+      </div>
+      <div style="padding:16px;">
+        <textarea id="thoughtsInput" placeholder="drop your thoughts here..." style="width:100%;min-height:130px;font-family:'Outfit',sans-serif;font-size:14px;color:#0a1628;background:#f5f9ff;border:0.5px solid #b8d0f0;border-radius:8px;padding:12px;resize:vertical;outline:none;line-height:1.7;"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+          <span id="thoughtsSaved" style="font-size:12px;color:#90aad0;"></span>
+          <button onclick="saveThoughts()" style="padding:7px 18px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
