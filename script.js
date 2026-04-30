@@ -73,12 +73,11 @@ let curMonth = today.getMonth();
 let habits = JSON.parse(localStorage.getItem('ht_habits') || '[]');
 let logs   = JSON.parse(localStorage.getItem('ht_logs')   || '{}');
 
-// Default habits on first load
 if (!habits.length) {
   habits = [
-    { id: 1, name: 'Exercise',  emoji: '🏋️' },
-    { id: 2, name: 'Read',      emoji: '📚' },
-    { id: 3, name: 'code,       emoji: '💻' }
+    { id: 1, name: 'Exercise', emoji: '🏋️' },
+    { id: 2, name: 'Read',     emoji: '📚' },
+    { id: 3, name: 'Code',     emoji: '💻' }
   ];
   saveHabits();
 }
@@ -111,7 +110,10 @@ function buildPicker() {
       <div class="picker-cat-label">${cat.label}</div>
       <div class="picker-grid">
         ${cat.emojis.map(e => `
-          <div class="picker-emoji${e === selectedEmoji ? ' sel' : ''}" onclick="selectEmoji('${e}')">${e}</div>
+          <div class="picker-emoji${e === selectedEmoji ? ' sel' : ''}" 
+            onclick="selectEmoji('${e}')"
+            ontouchend="event.preventDefault();selectEmoji('${e}')"
+            style="-webkit-tap-highlight-color:transparent;">${e}</div>
         `).join('')}
       </div>
     `).join('') +
@@ -136,14 +138,15 @@ function addHabit() {
   render();
 }
 
-// Close picker when clicking outside
-document.addEventListener('click', e => {
+function closePicker(e) {
   if (!e.target.closest('.emoji-picker-wrap')) {
     pickerOpen = false;
     const drop = document.getElementById('emojiPickerDrop');
     if (drop) drop.style.display = 'none';
   }
-});
+}
+document.addEventListener('click', closePicker);
+document.addEventListener('touchend', closePicker);
 
 function delHabit(id) {
   habits = habits.filter(h => h.id != id);
@@ -205,10 +208,13 @@ function render() {
 
   document.getElementById('monthLabel').textContent = MONTHS[m] + ' ' + y;
 
-  // Visible days (7 days around today for this month, else start from 1)
-  const startDay = isThisMonth ? Math.max(1, todayD - 3) : 1;
+  // Mobile: show 5 days, Desktop: show 7 days
+  const isMobile = window.innerWidth < 640;
+  const dotSize = isMobile ? '26px' : '18px';
+  const showDays = isMobile ? 5 : 7;
+  const startDay = isThisMonth ? Math.max(1, todayD - (isMobile ? 2 : 3)) : 1;
   const visibleDays = [];
-  for (let d = startDay; d < startDay + 7 && d <= tot; d++) visibleDays.push(d);
+  for (let d = startDay; d < startDay + showDays && d <= tot; d++) visibleDays.push(d);
 
   const dh = document.getElementById('dayHeaderDots');
   dh.innerHTML = visibleDays.map(d => `<div class="dot-label-head">${d}</div>`).join('');
@@ -223,7 +229,9 @@ function render() {
         const done = logs[k] && logs[k][h.id];
         const isTod = isThisMonth && d === todayD;
         return `<div class="dot${done ? ' done' : ''}${isTod ? ' today' : ''}"
-          onclick="toggle(${h.id},${y},${m},${d})" title="Day ${d}"></div>`;
+          onclick="toggle(${h.id},${y},${m},${d})" 
+          ontouchend="event.preventDefault();toggle(${h.id},${y},${m},${d})"
+          title="Day ${d}" style="cursor:pointer;-webkit-tap-highlight-color:transparent;width:${dotSize};height:${dotSize};"></div>`;
       }).join('');
       const streak = getStreak(h.id);
       return `<div class="habit-row">
@@ -231,7 +239,7 @@ function render() {
         <div class="habit-name">${h.name}</div>
         <div class="dots">${dots}</div>
         <div class="habit-streak">${streak > 0 ? streak + 'd' : ''}</div>
-        <button class="del-btn" onclick="delHabit(${h.id})">&#215;</button>
+        <button class="del-btn" onclick="delHabit(${h.id})" ontouchend="event.preventDefault();delHabit(${h.id})" style="-webkit-tap-highlight-color:transparent;">&#215;</button>
       </div>`;
     }).join('');
   }
@@ -273,9 +281,7 @@ function render() {
   }).join('');
 
   renderCal(y, m, tot);
-
   renderChart(y, m, tot);
-
   loadThoughts();
 }
 
@@ -312,7 +318,6 @@ function renderChart(y, m, tot) {
   }
 
   const ctx = document.getElementById('trendChart').getContext('2d');
-
   if (trendChart) trendChart.destroy();
 
   trendChart = new Chart(ctx, {
@@ -343,15 +348,14 @@ function renderChart(y, m, tot) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: true,
       plugins: {
         legend: { display: false },
         tooltip: {
-          callbacks: {
-            label: ctx => ` ${ctx.parsed.y}% completed`
-          },
+          callbacks: { label: ctx => ` ${ctx.parsed.y}% completed` },
           backgroundColor: '#111',
           titleColor: '#fff',
-          bodyColor: '#9FE1CB',
+          bodyColor: '#93c5fd',
           padding: 10,
           cornerRadius: 8,
           displayColors: false
@@ -360,23 +364,14 @@ function renderChart(y, m, tot) {
       scales: {
         x: {
           grid: { display: false },
-          ticks: {
-            color: '#aaa',
-            font: { family: 'DM Mono', size: 11 },
-            maxTicksLimit: 10
-          },
+          ticks: { color: '#90aad0', font: { family: 'DM Mono', size: 11 }, maxTicksLimit: 10 },
           border: { display: false }
         },
         y: {
           min: 0,
           max: 100,
-          grid: { color: '#f0f0ee', lineWidth: 1 },
-          ticks: {
-            color: '#aaa',
-            font: { family: 'DM Mono', size: 11 },
-            callback: v => v + '%',
-            stepSize: 25
-          },
+          grid: { color: '#ddeaff', lineWidth: 1 },
+          ticks: { color: '#90aad0', font: { family: 'DM Mono', size: 11 }, callback: v => v + '%', stepSize: 25 },
           border: { display: false }
         }
       },
@@ -402,6 +397,7 @@ function loadThoughts() {
   document.getElementById('thoughtsSaved').textContent = '';
 }
 
-let trendChart = null;
+window.addEventListener('resize', () => render());
 
+let trendChart = null;
 render();
